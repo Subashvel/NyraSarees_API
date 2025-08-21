@@ -1,14 +1,29 @@
 // controllers/productController.js
+
+// CREATE Product
 exports.createProduct = (Product, imageBaseUrl) => async (req, res) => {
   try {
-    const { productName, productDescription, categoryId } = req.body;
+    const { 
+      productName, 
+      productDescription, 
+      brandName, 
+      material, 
+      productMrpPrice,
+      productOfferPrice, 
+      subCategoryId 
+    } = req.body;
+
     const productImage = req.file ? `${imageBaseUrl}/${req.file.filename}` : null;
 
     const product = await Product.create({
       productName,
       productDescription,
+      brandName,
+      material,
+      productMrpPrice,
+      productOfferPrice,
       productImage,
-      categoryId,
+      subCategoryId,
     });
 
     res.status(201).json({ success: true, data: product });
@@ -17,10 +32,13 @@ exports.createProduct = (Product, imageBaseUrl) => async (req, res) => {
   }
 };
 
-exports.getProducts = (Product, Category) => async (req, res) => {
+// GET All Products
+exports.getProducts = (Product, SubCategory, Category) => async (req, res) => {
   try {
     const products = await Product.findAll({
-      include: [{ model: Category, as: "Category" }],
+      include: [
+        { model: SubCategory, as: "SubCategory", include: [{ model: Category, as: "Category" }] }
+      ],
       order: [["productId", "ASC"]],
     });
     res.status(200).json({ success: true, data: products });
@@ -29,10 +47,13 @@ exports.getProducts = (Product, Category) => async (req, res) => {
   }
 };
 
-exports.getProductById = (Product, Category) => async (req, res) => {
+// GET Product by ID
+exports.getProductById = (Product, SubCategory, Category) => async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id, {
-      include: [{ model: Category, as: "Category" }],
+      include: [
+        { model: SubCategory, as: "SubCategory", include: [{ model: Category, as: "Category" }] }
+      ],
     });
 
     if (!product) return res.status(404).json({ success: false, message: "Product not found" });
@@ -43,17 +64,30 @@ exports.getProductById = (Product, Category) => async (req, res) => {
   }
 };
 
+// UPDATE Product
 exports.updateProduct = (Product, imageBaseUrl) => async (req, res) => {
   try {
-    const { productName, productDescription, categoryId } = req.body;
-    const product = await Product.findByPk(req.params.id);
+    const { 
+      productName, 
+      productDescription, 
+      brandName, 
+      material, 
+      productMrpPrice,
+      productOfferPrice, 
+      subCategoryId 
+    } = req.body;
 
+    const product = await Product.findByPk(req.params.id);
     if (!product) return res.status(404).json({ success: false, message: "Product not found" });
 
     await product.update({
       productName,
       productDescription,
-      categoryId,
+      brandName,
+      material,
+      productMrpPrice,
+      productOfferPrice,
+      subCategoryId,
       productImage: req.file ? `${imageBaseUrl}/${req.file.filename}` : product.productImage,
     });
 
@@ -63,6 +97,7 @@ exports.updateProduct = (Product, imageBaseUrl) => async (req, res) => {
   }
 };
 
+// DELETE Product
 exports.deleteProduct = (Product) => async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
