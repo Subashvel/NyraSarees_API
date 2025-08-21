@@ -7,6 +7,7 @@ const initModels = require('./models');
 const createCategoryRoutes = require('./routes/category.routes');
 const createSubCategoryRoutes = require("./routes/subcategory.routes");
 const createProductRoutes = require('./routes/product.routes');
+const createProductVariantRoutes = require('./routes/productvariant.routes');
 // const createVariantRoutes = require('./routes/variant.routes');
 
 
@@ -26,15 +27,14 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 (async () => {
   try {
-    const { sequelize, Category, SubCategory, Product, } = await initModels();
+    const { sequelize, Category, SubCategory, Product, ProductVariant } = await initModels();
 
     // Register routes
     // app.use('/api/register', createRegisterRoutes(User));
     app.use('/api/categories', createCategoryRoutes(Category));
     app.use("/api/subcategories", createSubCategoryRoutes(SubCategory, Category));
-    app.use("/api/products", require("./routes/product.routes")(Product, Category, imageBaseUrl));
-    //  app.use("/api/variants", require("./routes/variant.routes")(Variant, Product, imageBaseUrl));
-    // app.use('/api/products', createProductRoutes(Product, imageBaseUrl));
+    app.use("/api/products", require("./routes/product.routes")(Product, SubCategory, imageBaseUrl));
+    app.use("/api/product-variants", createProductVariantRoutes(ProductVariant, Product, imageBaseUrl));
 
     await sequelize.sync({ alter: true });
     console.log('✅ All models synchronized successfully.');

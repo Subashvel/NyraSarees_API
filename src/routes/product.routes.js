@@ -5,7 +5,7 @@ const productController = require("../controllers/productController");
 
 module.exports = (Product, SubCategory, imageBaseUrl) => {
   // CREATE
-  router.post("/", multer.single("productImage"),
+  router.post("/", multer.single("productImage"), 
     productController.createProduct(Product, imageBaseUrl)
   );
 

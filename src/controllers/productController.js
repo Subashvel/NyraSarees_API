@@ -33,11 +33,11 @@ exports.createProduct = (Product, imageBaseUrl) => async (req, res) => {
 };
 
 // GET All Products
-exports.getProducts = (Product, SubCategory, Category) => async (req, res) => {
+exports.getProducts = (Product, SubCategory) => async (req, res) => {
   try {
     const products = await Product.findAll({
       include: [
-        { model: SubCategory, as: "SubCategory", include: [{ model: Category, as: "Category" }] }
+        { model: SubCategory, as: "SubCategory" }
       ],
       order: [["productId", "ASC"]],
     });
@@ -47,12 +47,14 @@ exports.getProducts = (Product, SubCategory, Category) => async (req, res) => {
   }
 };
 
+
+
 // GET Product by ID
-exports.getProductById = (Product, SubCategory, Category) => async (req, res) => {
+exports.getProductById = (Product, SubCategory) => async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id, {
       include: [
-        { model: SubCategory, as: "SubCategory", include: [{ model: Category, as: "Category" }] }
+        { model: SubCategory, as: "SubCategory"}
       ],
     });
 

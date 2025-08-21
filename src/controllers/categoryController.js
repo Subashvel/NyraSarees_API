@@ -21,7 +21,7 @@ exports.createCategory = async (req, res, Category) => {
 exports.getCategories = async (req, res, Category) => {
   try {
     const categories = await Category.findAll({
-      order: [["categoryid", "ASC"]],
+      order: [["categoryId", "ASC"]],
     });
 
     res.status(200).json({ success: true, data: categories });

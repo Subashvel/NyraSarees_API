@@ -1,37 +1,38 @@
-// // src/middlewares/variantMulter.js
-// const multer = require("multer");
-// const path = require("path");
-// const fs = require("fs");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-// // Set up storage
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     const dir = path.join(__dirname, "../uploads/variants");
+// Ensure uploads/productvariants folder exists
+const uploadPath = path.join(__dirname, "../uploads/productvariants");
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
 
-//     // ✅ Ensure the folder exists
-//     fs.mkdirSync(dir, { recursive: true });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+    );
+  },
+});
 
-//     cb(null, dir);
-//   },
-//   filename: function (req, file, cb) {
-//     cb(
-//       null,
-//       Date.now() + "-" + file.fieldname + path.extname(file.originalname)
-//     );
-//   },
-// });
+const fileFilter = (req, file, cb) => {
+  const allowed = /jpeg|jpg|png|webp/;
+  const extname = allowed.test(
+    path.extname(file.originalname).toLowerCase()
+  );
+  const mimetype = allowed.test(file.mimetype);
+  if (extname && mimetype) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files (jpeg, jpg, png, webp) are allowed!"));
+  }
+};
 
-// // File filter (optional)
-// const fileFilter = (req, file, cb) => {
-//   if (file.mimetype.startsWith("image/")) {
-//     cb(null, true);
-//   } else {
-//     cb(new Error("Only image files are allowed!"), false);
-//   }
-// };
-
-// // Create upload instance
-// const upload = multer({ storage, fileFilter });
-
-// // 👉 Export the configured `upload`
-// module.exports = upload;
+// Export with single or multiple file support
+module.exports = multer({ storage, fileFilter });
