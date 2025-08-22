@@ -3,6 +3,7 @@ const CategoryModel = require("./category");
 const SubCategoryModel = require("./subcategory");
 const ProductModel = require("./product");
 const ProductVariantModel = require("./productvariant");
+const UserModel = require("./user");
 // const VariantModel = require("./variant");
 
 async function initModels() {
@@ -11,7 +12,7 @@ async function initModels() {
   const SubCategory = SubCategoryModel(sequelize);
   const Product = ProductModel(sequelize);
   const ProductVariant = ProductVariantModel(sequelize);
-
+  const User = UserModel(sequelize);
   // const Variant = VariantModel(sequelize);
 
 
@@ -37,7 +38,7 @@ async function initModels() {
 
   await sequelize.sync({ alter: true }); // auto create/update tables
 
-  return { sequelize, Category, SubCategory, Product, ProductVariant };
+  return { sequelize, Category, SubCategory, Product, ProductVariant, User };
 }
 
 module.exports = initModels;
