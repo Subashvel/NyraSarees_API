@@ -3,17 +3,17 @@ const router = express.Router();
 const multer = require("../middlewares/productMulter");
 const productController = require("../controllers/productController");
 
-module.exports = (Product, SubCategory, imageBaseUrl) => {
+module.exports = (Product, SubCategory, Category, imageBaseUrl) => {
   // CREATE
   router.post("/", multer.single("productImage"), 
     productController.createProduct(Product, imageBaseUrl)
   );
 
   // GET ALL
-  router.get("/", productController.getProducts(Product, SubCategory));
+  router.get("/", productController.getProducts(Product, SubCategory, Category));
 
   // GET BY ID
-  router.get("/:id", productController.getProductById(Product, SubCategory));
+  router.get("/:id", productController.getProductById(Product, SubCategory, Category));
 
   // UPDATE
   router.put("/:id", multer.single("productImage"),

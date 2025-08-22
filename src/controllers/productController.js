@@ -33,11 +33,15 @@ exports.createProduct = (Product, imageBaseUrl) => async (req, res) => {
 };
 
 // GET All Products
-exports.getProducts = (Product, SubCategory) => async (req, res) => {
+exports.getProducts = (Product, SubCategory, Category) => async (req, res) => {
   try {
     const products = await Product.findAll({
       include: [
-        { model: SubCategory, as: "SubCategory" }
+        { 
+          model: SubCategory, 
+          as: "SubCategory",
+          include: [{ model: Category, as: "Category" }] // 👈 nested include
+        }
       ],
       order: [["productId", "ASC"]],
     });
@@ -47,14 +51,16 @@ exports.getProducts = (Product, SubCategory) => async (req, res) => {
   }
 };
 
-
-
 // GET Product by ID
-exports.getProductById = (Product, SubCategory) => async (req, res) => {
+exports.getProductById = (Product, SubCategory, Category) => async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id, {
       include: [
-        { model: SubCategory, as: "SubCategory"}
+        { 
+          model: SubCategory, 
+          as: "SubCategory",
+          include: [{ model: Category, as: "Category" }]
+        }
       ],
     });
 
@@ -65,7 +71,6 @@ exports.getProductById = (Product, SubCategory) => async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 // UPDATE Product
 exports.updateProduct = (Product, imageBaseUrl) => async (req, res) => {
   try {
