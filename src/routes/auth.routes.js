@@ -9,6 +9,18 @@ module.exports = (User) => {
   router.post("/register", userController.register);
   router.post("/login", userController.login);
 
+  // 🔹 Get all users (without passwords)
+  router.get("/", async (req, res) => {
+    try {
+      const users = await User.findAll({
+        attributes: { exclude: ["password"] }
+      });
+      res.json(users);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // Protected route
   router.get("/profile", authMiddleware, async (req, res) => {
     try {

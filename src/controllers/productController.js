@@ -13,7 +13,7 @@ exports.createProduct = (Product, imageBaseUrl) => async (req, res) => {
       subCategoryId 
     } = req.body;
 
-    const productImage = req.file ? `${imageBaseUrl}/${req.file.filename}` : null;
+    const productImage = req.file ? req.file.filename : null;
 
     const product = await Product.create({
       productName,
@@ -95,7 +95,7 @@ exports.updateProduct = (Product, imageBaseUrl) => async (req, res) => {
       productMrpPrice,
       productOfferPrice,
       subCategoryId,
-      productImage: req.file ? `${imageBaseUrl}/${req.file.filename}` : product.productImage,
+      productImage: req.file ? req.file.filename : product.productImage,
     });
 
     res.status(200).json({ success: true, data: product });
