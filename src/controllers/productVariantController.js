@@ -3,13 +3,18 @@
 // CREATE Product Variant
 exports.createProductVariant = (ProductVariant) => async (req, res) => {
   try {
-    const { productId, productColor, stockQuantity, lowStock } = req.body;
+    const { productId, productColor, stockQuantity, lowStock, subCategoryId, categoryId } = req.body;
+
+    
 
     const variant = await ProductVariant.create({
       productId,
+      subCategoryId,
+      categoryId,
       productColor,
       stockQuantity,
       lowStock,
+      productVariantImage: req.files["productVariantImage"] ? req.files["productVariantImage"][0].filename : null,
       thumbImage1: req.files["thumbImage1"] ? req.files["thumbImage1"][0].filename : null,
       thumbImage2: req.files["thumbImage2"] ? req.files["thumbImage2"][0].filename : null,
       thumbImage3: req.files["thumbImage3"] ? req.files["thumbImage3"][0].filename : null,
@@ -23,10 +28,22 @@ exports.createProductVariant = (ProductVariant) => async (req, res) => {
 };
 
 // GET All Variants
-exports.getProductVariants = (ProductVariant, Product) => async (req, res) => {
+exports.getProductVariants = (ProductVariant, Product, SubCategory, Category) => async (req, res) => {
   try {
     const variants = await ProductVariant.findAll({
-      include: [{ model: Product, as: "Product" }],
+      include: [
+        { 
+          model: Product, 
+          as: "Product",
+          include: [
+            { 
+              model: SubCategory, 
+              as: "SubCategory",
+              include: [{ model: Category, as: "Category" }]
+            }
+          ]
+        }
+      ],
       order: [["variantId", "ASC"]],
     });
 
@@ -37,10 +54,22 @@ exports.getProductVariants = (ProductVariant, Product) => async (req, res) => {
 };
 
 // GET Variant by ID
-exports.getProductVariantById = (ProductVariant, Product) => async (req, res) => {
+exports.getProductVariantById = (ProductVariant, Product, SubCategory, Category) => async (req, res) => {
   try {
     const variant = await ProductVariant.findByPk(req.params.id, {
-      include: [{ model: Product, as: "Product" }],
+      include: [
+        { 
+          model: Product, 
+          as: "Product",
+          include: [
+            { 
+              model: SubCategory, 
+              as: "SubCategory",
+              include: [{ model: Category, as: "Category" }]
+            }
+          ]
+        }
+      ]
     });
 
     if (!variant) return res.status(404).json({ success: false, message: "Variant not found" });
@@ -54,7 +83,7 @@ exports.getProductVariantById = (ProductVariant, Product) => async (req, res) =>
 // UPDATE Variant
 exports.updateProductVariant = (ProductVariant, imageBaseUrl) => async (req, res) => {
   try {
-    const { productId, productColor, stockQuantity, lowStock } = req.body;
+    const { productId, productColor, stockQuantity, lowStock, subCategoryId, categoryId } = req.body;
 
     const variant = await ProductVariant.findByPk(req.params.id);
     if (!variant) {
@@ -67,7 +96,13 @@ exports.updateProductVariant = (ProductVariant, imageBaseUrl) => async (req, res
       productColor: productColor || variant.productColor,
       stockQuantity: stockQuantity || variant.stockQuantity,
       lowStock: lowStock || variant.lowStock,
+      subCategoryId: subCategoryId || variant.subCategoryId,
+      categoryId: categoryId || variant.categoryId
     };
+
+     if (req.files["productVariantImage"]) {
+      updateData.productVariantImage = req.files["productVariantImage"][0].filename;
+    }
 
     // Only replace image fields if a new file is uploaded
     ["thumbImage1", "thumbImage2", "thumbImage3", "thumbImage4"].forEach(field => {

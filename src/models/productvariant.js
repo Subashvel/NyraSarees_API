@@ -10,11 +10,19 @@ module.exports = (sequelize) => {
     },
     productId: {
       type: DataTypes.INTEGER,
-      allowNull: false, // foreign key reference to Product
+      allowNull: true, // foreign key reference to Product
     },
-    productColor: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    subCategoryId: {  // add this
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    },
+    categoryId: {     // add this
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+      productColor: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
     stockQuantity: {
       type: DataTypes.INTEGER,
@@ -25,6 +33,10 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
+    },
+    productVariantImage: {  
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     thumbImage1: {
       type: DataTypes.STRING,

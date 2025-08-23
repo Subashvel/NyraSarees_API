@@ -37,7 +37,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
     app.use('/api/categories', createCategoryRoutes(Category));
     app.use("/api/subcategories", createSubCategoryRoutes(SubCategory, Category));
     app.use("/api/products", require("./routes/product.routes")(Product, SubCategory, Category, imageBaseUrl));
-    app.use("/api/product-variants", createProductVariantRoutes(ProductVariant, Product, imageBaseUrl));
+    app.use("/api/product-variants", createProductVariantRoutes(ProductVariant, Product, SubCategory, Category, imageBaseUrl));
     app.use("/api/admin", require("./routes/admin.routes"));
 
     await sequelize.sync({ alter: true });
