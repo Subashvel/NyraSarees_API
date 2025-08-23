@@ -42,6 +42,10 @@ module.exports = (sequelize) => {
       allowNull: false,
       
     },
+    categoryId: {   // NEW foreign key → Category
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   });
 
   return Product;

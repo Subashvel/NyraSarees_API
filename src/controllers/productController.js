@@ -10,7 +10,8 @@ exports.createProduct = (Product, imageBaseUrl) => async (req, res) => {
       material, 
       productMrpPrice,
       productOfferPrice, 
-      subCategoryId 
+      subCategoryId,
+      categoryId
     } = req.body;
 
     const productImage = req.file ? req.file.filename : null;
@@ -24,6 +25,7 @@ exports.createProduct = (Product, imageBaseUrl) => async (req, res) => {
       productOfferPrice,
       productImage,
       subCategoryId,
+      categoryId
     });
 
     res.status(201).json({ success: true, data: product });
@@ -81,7 +83,8 @@ exports.updateProduct = (Product, imageBaseUrl) => async (req, res) => {
       material, 
       productMrpPrice,
       productOfferPrice, 
-      subCategoryId 
+      subCategoryId,
+      categoryId
     } = req.body;
 
     const product = await Product.findByPk(req.params.id);
@@ -95,6 +98,7 @@ exports.updateProduct = (Product, imageBaseUrl) => async (req, res) => {
       productMrpPrice,
       productOfferPrice,
       subCategoryId,
+      categoryId,
       productImage: req.file ? req.file.filename : product.productImage,
     });
 
