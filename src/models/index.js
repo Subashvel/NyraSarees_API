@@ -5,6 +5,8 @@ const ProductModel = require("./product");
 const ProductVariantModel = require("./productvariant");
 const UserModel = require("./user");
 const HomeBannerModel = require("./homebanner");
+const WishlistModel = require("./wishlist");
+const CartModel = require("./cart");
 // const VariantModel = require("./variant");
 
 async function initModels() {
@@ -15,6 +17,8 @@ async function initModels() {
   const ProductVariant = ProductVariantModel(sequelize);
   const User = UserModel(sequelize);
   const HomeBanner = HomeBannerModel(sequelize);
+  const Wishlist = WishlistModel(sequelize);
+  const Cart = CartModel(sequelize);
   // const Variant = VariantModel(sequelize);
 
 
@@ -32,6 +36,22 @@ async function initModels() {
   Product.hasMany(ProductVariant, { foreignKey: "productId", as: "Variants", onDelete: "CASCADE" });
   ProductVariant.belongsTo(Product, { foreignKey: "productId", as: "Product" });
 
+  
+  // User ↔ Wishlist
+  User.hasMany(Wishlist, { foreignKey: "userId", as: "WishlistItems", onDelete: "CASCADE" });
+  Wishlist.belongsTo(User, { foreignKey: "userId", as: "User" });
+
+  ProductVariant.hasMany(Wishlist, { foreignKey: "productVariantId", as: "WishlistedBy", onDelete: "CASCADE" });
+  Wishlist.belongsTo(ProductVariant, { foreignKey: "productVariantId", as: "ProductVariant" });
+
+
+  // User ↔ Cart
+  User.hasMany(Cart, { foreignKey: "userId", as: "CartItems", onDelete: "CASCADE" });
+  Cart.belongsTo(User, { foreignKey: "userId", as: "User" });
+  
+  // ProductVariant ↔ Cart
+  ProductVariant.hasMany(Cart, { foreignKey: "productVariantId", as: "InCarts", onDelete: "CASCADE" });
+  Cart.belongsTo(ProductVariant, { foreignKey: "productVariantId", as: "ProductVariant" });
 
 
   // Product.hasMany(Variant, { foreignKey: "productId", as: "Variants", onDelete: "CASCADE" });
@@ -40,7 +60,7 @@ async function initModels() {
 
   await sequelize.sync({ alter: true }); // auto create/update tables
 
-  return { sequelize, Category, SubCategory, Product, ProductVariant, User, HomeBanner };
+  return { sequelize, Category, SubCategory, Product, ProductVariant, User, HomeBanner, Wishlist, Cart };
 }
 
 module.exports = initModels;
