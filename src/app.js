@@ -12,6 +12,8 @@ const createUserRoutes = require("./routes/auth.routes");
 const createHomeBannerRoutes = require("./routes/homeBanner.routes");
 const createWishlistRoutes = require("./routes/wishlist.routes");
 const createCartRoutes = require("./routes/cart.routes");
+const createCouponRoutes = require("./routes/coupon.routes");
+const createProductVariantChildImageRoutes = require("./routes/productVariantChildImage.routes");
 // const createVariantRoutes = require('./routes/variant.routes');
 
 
@@ -32,7 +34,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 (async () => {
   try {
-    const { sequelize, User, Category, SubCategory, Product, ProductVariant, HomeBanner, Wishlist, Cart } = await initModels();
+    const { sequelize, User, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, HomeBanner, Wishlist, Cart, Coupon } = await initModels();
 
     // Register routes
     // app.use('/api/register', createRegisterRoutes(User));
@@ -44,7 +46,8 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
     app.use("/api/home-banners", createHomeBannerRoutes(HomeBanner, imageBaseUrl));
     app.use("/api/wishlist", createWishlistRoutes(Wishlist, ProductVariant));
     app.use("/api/cart", createCartRoutes(Cart, ProductVariant, Product));
-
+    app.use("/api/coupons", createCouponRoutes(Coupon));
+    app.use("/api/product-variant-images", createProductVariantChildImageRoutes(ProductVariantChildImage));
     app.use("/api/admin", require("./routes/admin.routes"));
 
 

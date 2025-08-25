@@ -9,10 +9,6 @@ module.exports = (ProductVariant, Product, SubCategory, Category, imageBaseUrl) 
   "/",
   multer.fields([
     { name: "productVariantImage", maxCount: 1 },
-    { name: "thumbImage1", maxCount: 1 },
-    { name: "thumbImage2", maxCount: 1 },
-    { name: "thumbImage3", maxCount: 1 },
-    { name: "thumbImage4", maxCount: 1 },
   ]),
   productVariantController.createProductVariant(ProductVariant, imageBaseUrl)
 );
@@ -28,10 +24,6 @@ module.exports = (ProductVariant, Product, SubCategory, Category, imageBaseUrl) 
   "/:id",
   multer.fields([
     { name: "productVariantImage", maxCount: 1 },
-    { name: "thumbImage1", maxCount: 1 },
-    { name: "thumbImage2", maxCount: 1 },
-    { name: "thumbImage3", maxCount: 1 },
-    { name: "thumbImage4", maxCount: 1 },
   ]),
   productVariantController.updateProductVariant(ProductVariant, imageBaseUrl)
 );

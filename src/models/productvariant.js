@@ -38,22 +38,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    thumbImage1: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    thumbImage2: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    thumbImage3: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    thumbImage4: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
+    
   });
 
   return ProductVariant;

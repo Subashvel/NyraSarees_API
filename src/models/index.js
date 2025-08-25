@@ -7,6 +7,8 @@ const UserModel = require("./user");
 const HomeBannerModel = require("./homebanner");
 const WishlistModel = require("./wishlist");
 const CartModel = require("./cart");
+const CouponModel = require("./coupon");
+const ProductVariantChildImageModel = require("./productVariantChildImage");
 // const VariantModel = require("./variant");
 
 async function initModels() {
@@ -19,6 +21,8 @@ async function initModels() {
   const HomeBanner = HomeBannerModel(sequelize);
   const Wishlist = WishlistModel(sequelize);
   const Cart = CartModel(sequelize);
+  const Coupon = CouponModel(sequelize);
+  const ProductVariantChildImage = ProductVariantChildImageModel(sequelize);
   // const Variant = VariantModel(sequelize);
 
 
@@ -53,6 +57,12 @@ async function initModels() {
   ProductVariant.hasMany(Cart, { foreignKey: "productVariantId", as: "InCarts", onDelete: "CASCADE" });
   Cart.belongsTo(ProductVariant, { foreignKey: "productVariantId", as: "ProductVariant" });
 
+  User.hasMany(Coupon, { foreignKey: "createdBy", as: "Coupons" });
+  Coupon.belongsTo(User, { foreignKey: "createdBy", as: "User" });
+
+  // ProductVariant ↔ ProductVariantChildImage (One-to-Many)
+  ProductVariant.hasMany(ProductVariantChildImage, { foreignKey: "variantId", as: "ChildImages", onDelete: "CASCADE" });
+  ProductVariantChildImage.belongsTo(ProductVariant, { foreignKey: "variantId", as: "ProductVariant" });
 
   // Product.hasMany(Variant, { foreignKey: "productId", as: "Variants", onDelete: "CASCADE" });
   // Variant.belongsTo(Product, { foreignKey: "productId", as: "Product" });
@@ -60,7 +70,7 @@ async function initModels() {
 
   await sequelize.sync({ alter: true }); // auto create/update tables
 
-  return { sequelize, Category, SubCategory, Product, ProductVariant, User, HomeBanner, Wishlist, Cart };
+  return { sequelize, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, User, HomeBanner, Wishlist, Cart, Coupon };
 }
 
 module.exports = initModels;

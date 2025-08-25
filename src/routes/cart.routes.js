@@ -10,7 +10,7 @@ module.exports = (Cart, ProductVariant, Product) => {
   // Get cart by user
   router.get("/:userId", cartController.getCart(Cart, ProductVariant, Product));
 
-    // Update quantity (REST style)
+  // Update quantity (REST style)
   router.put("/update/:cartId", cartController.updateCart(Cart));
 
   // Remove from cart

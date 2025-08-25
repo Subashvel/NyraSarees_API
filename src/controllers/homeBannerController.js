@@ -1,7 +1,7 @@
 // CREATE
 exports.createHomeBanner = (HomeBanner, imageBaseUrl) => async (req, res) => {
   try {
-    const bannerImage = req.file ? `${imageBaseUrl}/${req.file.filename}` : null;
+    const bannerImage = req.file ? req.file.filename : null;
 
     const banner = await HomeBanner.create({ bannerImage });
     res.status(201).json(banner);
@@ -37,7 +37,7 @@ exports.updateHomeBanner = (HomeBanner, imageBaseUrl) => async (req, res) => {
     const banner = await HomeBanner.findByPk(req.params.id);
     if (!banner) return res.status(404).json({ message: "Banner not found" });
 
-    const bannerImage = req.file ? `${imageBaseUrl}/${req.file.filename}` : banner.bannerImage;
+    const bannerImage = req.file ? req.file.filename : banner.bannerImage;
 
     await banner.update({ bannerImage });
 
