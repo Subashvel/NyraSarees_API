@@ -10,7 +10,7 @@ exports.createProductVariant = (ProductVariant) => async (req, res) => {
       productColor,
       stockQuantity,
       lowStock,
-      productVariantImage: req.files["productVariantImage"]
+      productVariantImage: req.files && req.files["productVariantImage"]
         ? req.files["productVariantImage"][0].filename
         : null,
     });
@@ -93,7 +93,7 @@ exports.updateProductVariant = (ProductVariant) => async (req, res) => {
       categoryId: categoryId || variant.categoryId,
     };
 
-    if (req.files["productVariantImage"]) {
+    if (req.files && req.files["productVariantImage"]) {
       updateData.productVariantImage = req.files["productVariantImage"][0].filename;
     }
 
@@ -101,10 +101,12 @@ exports.updateProductVariant = (ProductVariant) => async (req, res) => {
 
     res.status(200).json({ success: true, data: variant });
   } catch (error) {
-    console.error("❌ Error in updateProductVariant:", error);
+    console.error("Error in updateProductVariant:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
 
 // DELETE Variant
 exports.deleteProductVariant = (ProductVariant) => async (req, res) => {

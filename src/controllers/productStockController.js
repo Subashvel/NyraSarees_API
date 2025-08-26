@@ -50,3 +50,12 @@ exports.getStock = (ProductStock) => async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getAllStocks = (ProductStock) => async (req, res) => {
+  try {
+    const stocks = await ProductStock.findAll();
+    res.json(stocks);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

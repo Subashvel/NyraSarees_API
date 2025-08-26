@@ -9,6 +9,8 @@ module.exports = (ProductStock, ProductVariant) => {
   // Reduce stock
   router.post("/reduce", stockController.reduceStock(ProductStock));
 
+   router.get("/", stockController.getAllStocks(ProductStock));
+
   // Get stock by variant
   router.get("/:productVariantId", stockController.getStock(ProductStock));
 
