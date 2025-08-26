@@ -42,7 +42,7 @@ exports.getProducts = (Product, SubCategory, Category) => async (req, res) => {
         { 
           model: SubCategory, 
           as: "SubCategory",
-          include: [{ model: Category, as: "Category" }] // 👈 nested include
+          include: [{ model: Category, as: "Category" }] //  nested include
         }
       ],
       order: [["productId", "ASC"]],

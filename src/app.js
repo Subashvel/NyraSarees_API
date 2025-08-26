@@ -14,6 +14,7 @@ const createWishlistRoutes = require("./routes/wishlist.routes");
 const createCartRoutes = require("./routes/cart.routes");
 const createCouponRoutes = require("./routes/coupon.routes");
 const createProductVariantChildImageRoutes = require("./routes/productVariantChildImage.routes");
+
 // const createVariantRoutes = require('./routes/variant.routes');
 
 
@@ -34,7 +35,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 (async () => {
   try {
-    const { sequelize, User, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, HomeBanner, Wishlist, Cart, Coupon } = await initModels();
+    const { sequelize, User, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, ProductStock, HomeBanner, Wishlist, Cart, Coupon } = await initModels();
 
     // Register routes
     // app.use('/api/register', createRegisterRoutes(User));
@@ -48,6 +49,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
     app.use("/api/cart", createCartRoutes(Cart, ProductVariant, Product));
     app.use("/api/coupons", createCouponRoutes(Coupon));
     app.use("/api/product-variant-images", createProductVariantChildImageRoutes(ProductVariantChildImage));
+    app.use("/api/product-stock", require("./routes/productstock.routes")(ProductStock, ProductVariant));
     app.use("/api/admin", require("./routes/admin.routes"));
 
 
