@@ -38,6 +38,18 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    isNewArrival: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    isBestSeller: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    isTrending: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     
   });
 

@@ -4,33 +4,39 @@ exports.addToCart = (Cart, ProductVariant) => async (req, res) => {
   try {
     const { userId, productVariantId, quantity } = req.body;
 
-    // check if productVariant exists
+    // Validate inputs
+    if (!userId || !productVariantId || !quantity || quantity < 1) {
+      return res.status(400).json({ message: "Invalid input data" });
+    }
+
+    // Check if productVariant exists
     const variant = await ProductVariant.findByPk(productVariantId);
     if (!variant) {
       return res.status(404).json({ message: "Product Variant not found" });
     }
 
-    // check if already in cart
+    // Check if already in cart
     let existing = await Cart.findOne({ where: { userId, productVariantId } });
 
     if (existing) {
-      // update qty if already exists
-      existing.quantity += quantity || 1;
+      // ✅ update qty if already exists
+      existing.quantity += quantity;
       await existing.save();
       return res
         .status(200)
         .json({ message: "Cart updated (quantity increased)", cartItem: existing });
     }
 
-    // otherwise create
+    // ✅ otherwise create new cart item
     const cartItem = await Cart.create({
       userId,
       productVariantId,
-      quantity: quantity || 1,
+      quantity,
     });
 
     res.status(201).json({ message: "Product added to cart", cartItem });
   } catch (err) {
+    console.error("Error in addToCart:", err);
     res.status(500).json({ error: err.message });
   }
 };

@@ -1,7 +1,16 @@
 // CREATE Product Variant
+
+// helper to parse boolean from req.body
+const parseBool = (val) => {
+  if (typeof val === "string") {
+    return val === "true" || val === "1";
+  }
+  return !!val;
+};
+
 exports.createProductVariant = (ProductVariant) => async (req, res) => {
   try {
-    const { productId, productColor, stockQuantity, lowStock, subCategoryId, categoryId } = req.body;
+    const { productId, productColor, stockQuantity, lowStock, subCategoryId, categoryId, isNewArrival, isBestSeller, isTrending } = req.body;
 
     const variant = await ProductVariant.create({
       productId,
@@ -10,6 +19,9 @@ exports.createProductVariant = (ProductVariant) => async (req, res) => {
       productColor,
       stockQuantity,
       lowStock,
+      isNewArrival: parseBool(isNewArrival),
+      isBestSeller: parseBool(isBestSeller),
+      isTrending: parseBool(isTrending),
       productVariantImage: req.files && req.files["productVariantImage"]
         ? req.files["productVariantImage"][0].filename
         : null,
@@ -77,7 +89,7 @@ exports.getProductVariantById = (ProductVariant, Product, SubCategory, Category)
 // UPDATE Variant
 exports.updateProductVariant = (ProductVariant) => async (req, res) => {
   try {
-    const { productId, productColor, stockQuantity, lowStock, subCategoryId, categoryId } = req.body;
+    const { productId, productColor, stockQuantity, lowStock, subCategoryId, categoryId, isNewArrival, isBestSeller, isTrending } = req.body;
 
     const variant = await ProductVariant.findByPk(req.params.id);
     if (!variant) {
@@ -91,6 +103,12 @@ exports.updateProductVariant = (ProductVariant) => async (req, res) => {
       lowStock: lowStock || variant.lowStock,
       subCategoryId: subCategoryId || variant.subCategoryId,
       categoryId: categoryId || variant.categoryId,
+      isNewArrival:
+        isNewArrival !== undefined ? parseBool(isNewArrival) : variant.isNewArrival,
+      isBestSeller:
+        isBestSeller !== undefined ? parseBool(isBestSeller) : variant.isBestSeller,
+      isTrending:
+        isTrending !== undefined ? parseBool(isTrending) : variant.isTrending,
     };
 
     if (req.files && req.files["productVariantImage"]) {

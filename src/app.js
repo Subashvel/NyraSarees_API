@@ -14,6 +14,7 @@ const createWishlistRoutes = require("./routes/wishlist.routes");
 const createCartRoutes = require("./routes/cart.routes");
 const createCouponRoutes = require("./routes/coupon.routes");
 const createProductVariantChildImageRoutes = require("./routes/productVariantChildImage.routes");
+const createBillRoutes = require("./routes/bill.routes")
 
 // const createVariantRoutes = require('./routes/variant.routes');
 
@@ -48,9 +49,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
     app.use("/api/wishlist", createWishlistRoutes(Wishlist, ProductVariant));
     app.use("/api/cart", createCartRoutes(Cart, ProductVariant, Product));
     app.use("/api/coupons", createCouponRoutes(Coupon));
-    app.use("/api/product-variant-images", createProductVariantChildImageRoutes(ProductVariantChildImage));
+    app.use("/api/product-variant-images", createProductVariantChildImageRoutes(ProductVariantChildImage, imageBaseUrl));
     app.use("/api/product-stock", require("./routes/productstock.routes")(ProductStock, ProductVariant));
     app.use("/api/admin", require("./routes/admin.routes"));
+    const models = await initModels();
+    app.use("/api/bill", require("./routes/bill.routes")(models.Bill, models.User));
 
 
     await sequelize.sync({ alter: true });

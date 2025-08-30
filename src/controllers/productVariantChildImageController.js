@@ -23,18 +23,23 @@ exports.addChildImages = (ProductVariantChildImage) => async (req, res) => {
 };
 
 // GET all child images for a variant
-exports.getChildImagesByVariant = (ProductVariantChildImage) => async (req, res) => {
+exports.getChildImagesByVariant = (ProductVariantChildImage, imageBaseUrl) => async (req, res) => {
   try {
     const { variantId } = req.params;
 
     const images = await ProductVariantChildImage.findAll({ where: { variantId } });
 
-    res.status(200).json({ success: true, data: images });
+    const formatted = images.map(img => ({
+      childImageId: img.childImageId,
+      variantId: img.variantId,
+      childImage: img.childImage // construct URL here
+    }));
+
+    res.status(200).json({ success: true, data: formatted });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 // DELETE child image
 exports.deleteChildImage = (ProductVariantChildImage) => async (req, res) => {
   try {
