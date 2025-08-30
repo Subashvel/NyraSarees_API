@@ -14,14 +14,15 @@ const createWishlistRoutes = require("./routes/wishlist.routes");
 const createCartRoutes = require("./routes/cart.routes");
 const createCouponRoutes = require("./routes/coupon.routes");
 const createProductVariantChildImageRoutes = require("./routes/productVariantChildImage.routes");
-const createBillRoutes = require("./routes/bill.routes")
+const createBillRoutes = require("./routes/bill.routes");
+const createCollectionBannerRoutes = require("./routes/collectionBanner.routes");
 
 // const createVariantRoutes = require('./routes/variant.routes');
 
 
 
 dotenv.config();
-const app = express();
+const app = express();  
 
 const PORT = process.env.PORT || 5000;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
@@ -36,7 +37,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 (async () => {
   try {
-    const { sequelize, User, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, ProductStock, HomeBanner, Wishlist, Cart, Coupon } = await initModels();
+    const { sequelize, User, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, ProductStock, HomeBanner, Wishlist, Cart, Coupon, CollectionBanner } = await initModels();
 
     // Register routes
     // app.use('/api/register', createRegisterRoutes(User));
@@ -54,7 +55,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
     app.use("/api/admin", require("./routes/admin.routes"));
     const models = await initModels();
     app.use("/api/bill", require("./routes/bill.routes")(models.Bill, models.User));
-
+    app.use("/api/collection-banners", createCollectionBannerRoutes(models.CollectionBanner, imageBaseUrl));
 
     await sequelize.sync({ alter: true });
     console.log('✅ All models synchronized successfully.');

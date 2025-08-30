@@ -11,6 +11,7 @@ const CouponModel = require("./coupon");
 const ProductVariantChildImageModel = require("./productVariantChildImage");
 const ProductStockModel = require("./productStock");
 const BillModel = require("./bill");
+const CollectionBannerModel = require("./collectionbanner");
 
 // const VariantModel = require("./variant");
 
@@ -28,6 +29,7 @@ async function initModels() {
   const ProductVariantChildImage = ProductVariantChildImageModel(sequelize);
   const ProductStock = ProductStockModel(sequelize);
   const Bill = BillModel(sequelize);
+  const CollectionBanner = CollectionBannerModel(sequelize);
   // const Variant = VariantModel(sequelize);
 
 
@@ -82,7 +84,7 @@ async function initModels() {
 
   await sequelize.sync({ alter: true }); // auto create/update tables
 
-  return { sequelize, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, ProductStock, User, HomeBanner, Wishlist, Cart, Coupon, Bill };
+  return { sequelize, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, ProductStock, User, HomeBanner, Wishlist, Cart, Coupon, Bill, CollectionBanner };
 }
 
 module.exports = initModels;
