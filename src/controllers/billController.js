@@ -10,12 +10,29 @@ module.exports = (Bill, User) => {
       return res.status(400).json({ error: "Invalid userId" });
     }
     userId = Number(userId);
+
     const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const bill = await Bill.create({ userId, ...rest });
-    res.status(201).json({message: "Bill updated", Bill});
+
+    // Generate orderId
+    const lastBill = await Bill.findOne({
+      order: [["createdAt", "DESC"]],
+    });
+
+    let nextNumber = 1;
+    if (lastBill && lastBill.orderId) {
+      const match = lastBill.orderId.match(/NYRASAREES-ORD-(\d+)/);
+      if (match) {
+        nextNumber = parseInt(match[1], 10) + 1;
+      }
+    }
+
+    const orderId = `NYRASAREES-ORD-${String(nextNumber).padStart(4, "0")}`;
+
+    const bill = await Bill.create({ userId, orderId, ...rest });
+    res.status(201).json({ message: "Bill created", bill });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

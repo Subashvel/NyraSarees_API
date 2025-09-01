@@ -3,6 +3,7 @@ const path = require("path");
 const cors = require('cors');
 const dotenv = require('dotenv');
 const initModels = require('./models');
+
 // const createRegisterRoutes = require('./routes/register.routes');
 const createCategoryRoutes = require('./routes/category.routes');
 const createSubCategoryRoutes = require("./routes/subcategory.routes");
@@ -16,6 +17,10 @@ const createCouponRoutes = require("./routes/coupon.routes");
 const createProductVariantChildImageRoutes = require("./routes/productVariantChildImage.routes");
 const createBillRoutes = require("./routes/bill.routes");
 const createCollectionBannerRoutes = require("./routes/collectionBanner.routes");
+const createContactRoutes = require("./routes/contact.routes");
+const createOrderRoutes = require("./routes/order.routes");
+
+
 
 // const createVariantRoutes = require('./routes/variant.routes');
 
@@ -37,7 +42,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 (async () => {
   try {
-    const { sequelize, User, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, ProductStock, HomeBanner, Wishlist, Cart, Coupon, CollectionBanner } = await initModels();
+    const { sequelize, User, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, ProductStock, HomeBanner, Wishlist, Cart, Coupon, CollectionBanner, Bill } = await initModels();
 
     // Register routes
     // app.use('/api/register', createRegisterRoutes(User));
@@ -56,6 +61,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
     const models = await initModels();
     app.use("/api/bill", require("./routes/bill.routes")(models.Bill, models.User));
     app.use("/api/collection-banners", createCollectionBannerRoutes(models.CollectionBanner, imageBaseUrl));
+    app.use("/api/contacts", createContactRoutes(models.Contact));
+    app.use("/api/newsletter", require("./routes/newsletter.routes")(models.Newsletter));
+    app.use("/api/orders", createOrderRoutes);
+  
 
     await sequelize.sync({ alter: true });
     console.log('✅ All models synchronized successfully.');

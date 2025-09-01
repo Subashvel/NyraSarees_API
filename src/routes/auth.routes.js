@@ -21,18 +21,29 @@ module.exports = (User) => {
     }
   });
 
-  // Protected route
   router.get("/profile", authMiddleware, async (req, res) => {
-    try {
-      const user = await User.findByPk(req.user.id, {
-        attributes: { exclude: ["password"] }
-      });
-      if (!user) return res.status(404).json({ message: "User not found" });
-      res.json(user);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: { exclude: ["password"] },
+    });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({
+      user: {
+        userId: user.userId,
+        username: user.username,
+        phonenumber: user.phonenumber,
+        email: user.email,
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+  
+
+
 
   return router;
 };

@@ -11,6 +11,11 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    orderId: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: true,
+    },
     fullName: {
       type: DataTypes.STRING,
       allowNull: false,

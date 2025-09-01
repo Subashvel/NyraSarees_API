@@ -12,6 +12,13 @@ const ProductVariantChildImageModel = require("./productVariantChildImage");
 const ProductStockModel = require("./productStock");
 const BillModel = require("./bill");
 const CollectionBannerModel = require("./collectionbanner");
+const ContactModel = require("./contact");
+const NewsletterModel = require("./newsletter");
+const OrderSlotModel = require("./orderslot");
+const ProductOrderModel = require("./productorder");
+
+
+
 
 // const VariantModel = require("./variant");
 
@@ -30,6 +37,11 @@ async function initModels() {
   const ProductStock = ProductStockModel(sequelize);
   const Bill = BillModel(sequelize);
   const CollectionBanner = CollectionBannerModel(sequelize);
+  const Contact = ContactModel(sequelize);
+  const Newsletter = NewsletterModel(sequelize);
+  const OrderSlot = OrderSlotModel(sequelize);
+  const ProductOrder = ProductOrderModel(sequelize);
+
   // const Variant = VariantModel(sequelize);
 
 
@@ -81,10 +93,33 @@ async function initModels() {
   // Product.hasMany(Variant, { foreignKey: "productId", as: "Variants", onDelete: "CASCADE" });
   // Variant.belongsTo(Product, { foreignKey: "productId", as: "Product" });
 
+  // ProductOrder ↔ Bill (1:1)
+  Bill.hasOne(ProductOrder, { foreignKey: "billId", as: "Order" });
+  ProductOrder.belongsTo(Bill, { foreignKey: "billId", as: "Bill" }); 
+
+  // User ↔ ProductOrder
+  User.hasMany(ProductOrder, { foreignKey: "userId", as: "Orders", onDelete: "CASCADE" });
+  ProductOrder.belongsTo(User, { foreignKey: "userId", as: "User" });
+
+  // ProductOrder ↔ OrderSlot
+  ProductOrder.hasMany(OrderSlot, { foreignKey: "productOrderId", as: "OrderSlots", onDelete: "CASCADE" });
+  OrderSlot.belongsTo(ProductOrder, { foreignKey: "productOrderId", as: "ProductOrder" });
+
+  // User ↔ OrderSlot (for quick reference)
+  User.hasMany(OrderSlot, { foreignKey: "userId", as: "OrderSlots", onDelete: "CASCADE" });
+  OrderSlot.belongsTo(User, { foreignKey: "userId", as: "User" });
+
+  // ProductVariant ↔ OrderSlot (for quick product ref)
+  ProductVariant.hasMany(OrderSlot, { foreignKey: "product_variant_id", as: "OrderSlots", onDelete: "CASCADE" });
+  OrderSlot.belongsTo(ProductVariant, { foreignKey: "product_variant_id", as: "ProductVariant" });
+
+  
+
+
 
   await sequelize.sync({ alter: true }); // auto create/update tables
 
-  return { sequelize, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, ProductStock, User, HomeBanner, Wishlist, Cart, Coupon, Bill, CollectionBanner };
+  return { sequelize, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, ProductStock, User, HomeBanner, Wishlist, Cart, Coupon, Bill, CollectionBanner, Contact, Newsletter, OrderSlot, ProductOrder };
 }
 
 module.exports = initModels;

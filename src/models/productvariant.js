@@ -1,4 +1,5 @@
 const { DataTypes } = require("sequelize");
+const product = require("./product");
 
 module.exports = (sequelize) => {
   const ProductVariant = sequelize.define("productvariant", {
@@ -55,3 +56,6 @@ module.exports = (sequelize) => {
 
   return ProductVariant;
 };
+
+
+
