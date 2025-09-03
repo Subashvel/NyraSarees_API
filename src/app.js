@@ -49,10 +49,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
     app.use("/api/users", createUserRoutes(User));
     app.use('/api/categories', createCategoryRoutes(Category));
     app.use("/api/subcategories", createSubCategoryRoutes(SubCategory, Category));
-    app.use("/api/products", require("./routes/product.routes")(Product, SubCategory, Category, imageBaseUrl));
+    app.use("/api/products", require("./routes/product.routes")(Product, SubCategory, Category, ProductVariant, ProductVariantChildImage, imageBaseUrl));
     app.use("/api/product-variants", createProductVariantRoutes(ProductVariant, Product, SubCategory, Category, imageBaseUrl));
     app.use("/api/home-banners", createHomeBannerRoutes(HomeBanner, imageBaseUrl));
-    app.use("/api/wishlist", createWishlistRoutes(Wishlist, ProductVariant));
+    app.use("/api/wishlist", createWishlistRoutes(Wishlist, ProductVariant, Product));
     app.use("/api/cart", createCartRoutes(Cart, ProductVariant, Product));
     app.use("/api/coupons", createCouponRoutes(Coupon));
     app.use("/api/product-variant-images", createProductVariantChildImageRoutes(ProductVariantChildImage, imageBaseUrl));
@@ -64,6 +64,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
     app.use("/api/contacts", createContactRoutes(models.Contact));
     app.use("/api/newsletter", require("./routes/newsletter.routes")(models.Newsletter));
     app.use("/api/orders", createOrderRoutes);
+    
   
 
     await sequelize.sync({ alter: true });

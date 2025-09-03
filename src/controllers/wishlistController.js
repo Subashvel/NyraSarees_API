@@ -17,13 +17,26 @@ exports.addToWishlist = (Wishlist) => async (req, res) => {
   }
 };
 
-exports.getWishlist = (Wishlist, ProductVariant) => async (req, res) => {
+exports.getWishlist = (Wishlist, ProductVariant, Product) => async (req, res) => {
   try {
     const { userId } = req.params;
 
     const wishlist = await Wishlist.findAll({
       where: { userId },
-      include: [{ model: ProductVariant, as: "ProductVariant" }], // join with product table
+      include: [
+        {
+          model: ProductVariant,
+          as: "ProductVariant",
+          attributes: ["productVariantId", "productVariantImage", "productId"], 
+          include: [
+            {
+              model: Product,
+              as: "Product",
+              attributes: ["productId", "productName", "productOfferPrice", "productMrpPrice"]
+            }
+          ]
+        }
+      ]
     });
 
     res.status(200).json(wishlist);

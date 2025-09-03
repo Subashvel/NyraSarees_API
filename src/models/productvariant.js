@@ -21,9 +21,12 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-      productColor: {
-        type: DataTypes.STRING,
-        allowNull: false,
+    productColor: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        is: /^#([0-9A-Fa-f]{6})$/, // strict hex code validation
+      }
     },
     stockQuantity: {
       type: DataTypes.INTEGER,

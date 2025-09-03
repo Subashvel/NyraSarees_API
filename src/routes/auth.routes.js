@@ -21,28 +21,55 @@ module.exports = (User) => {
     }
   });
 
-  router.get("/profile", authMiddleware, async (req, res) => {
+  router.get("/:id", async (req, res) => {
   try {
-    const user = await User.findByPk(req.user.id, {
-      attributes: { exclude: ["password"] },
-    });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const { id } = req.params;
 
-    res.json({
-      user: {
-        userId: user.userId,
-        username: user.username,
-        phonenumber: user.phonenumber,
-        email: user.email,
-      }
+    const user = await User.findOne({
+      where: { userId: id },
+      attributes: { exclude: ["password"] }
     });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-  
 
+// 🔹 Update username, phonenumber, email only
+  router.put("/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { username, phonenumber, email } = req.body;
+
+      const user = await User.findOne({ where: { userId: id } });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // update only allowed fields
+      user.username = username ?? user.username;
+      user.phonenumber = phonenumber ?? user.phonenumber;
+      user.email = email ?? user.email;
+
+      await user.save();
+
+      // send back updated user (excluding password)
+      const updatedUser = await User.findOne({
+        where: { userId: id },
+        attributes: { exclude: ["password"] }
+      });
+
+      res.json(updatedUser);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
 
 
   return router;

@@ -15,5 +15,8 @@ module.exports = (Coupon) => {
   // Delete coupon
   router.delete("/:id", couponController.deleteCoupon(Coupon));
 
+  // Validate coupon
+  router.post("/validate", couponController.validateCoupon(Coupon));
+
   return router;
 };

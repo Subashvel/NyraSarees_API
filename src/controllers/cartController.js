@@ -16,15 +16,14 @@ exports.addToCart = (Cart, ProductVariant) => async (req, res) => {
     }
 
     // Check if already in cart
-    let existing = await Cart.findOne({ where: { userId, productVariantId } });
+    const existingCartItem = await Cart.findOne({ where: { userId, productVariantId } });
 
-    if (existing) {
-      // ✅ update qty if already exists
-      existing.quantity += quantity;
-      await existing.save();
-      return res
-        .status(200)
-        .json({ message: "Cart updated (quantity increased)", cartItem: existing });
+    if (existingCartItem) {
+      // ❌ Don't increase quantity automatically
+      return res.status(200).json({
+        message: "Already in cart",
+        cartItem: existingCartItem
+      });
     }
 
     // ✅ otherwise create new cart item
