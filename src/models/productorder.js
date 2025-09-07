@@ -29,7 +29,7 @@ module.exports = (sequelize) => {
       allowNull: false,
     },
     deliveryStatus: {
-      type: DataTypes.ENUM("pending", "packing", "delivered"),
+      type: DataTypes.ENUM("pending", "dispatch", "packing", "outfordelivery", "delivered"),
       allowNull: true,
       defaultValue: "pending",
     },
