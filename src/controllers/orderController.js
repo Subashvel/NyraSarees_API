@@ -1,6 +1,6 @@
 // controllers/orderController.js
 const initModels = require("../models");
-
+const { sendOrderMail } = require("../utils/mailer");
 exports.checkout = async (req, res) => {
   const { billData, couponCodeName } = req.body;
   const userId = billData.userId; // 🔥 extract userId from billData
@@ -49,9 +49,30 @@ exports.checkout = async (req, res) => {
       }
     });
 
-    // Apply coupon
-    let discount = couponCodeName ? 100 : 0;
-    const grand_total_amount = total_amount - discount;
+   // Apply coupon properly
+let discount = 0;
+
+if (couponCodeName) {
+  const { Coupon } = await initModels();
+  const coupon = await Coupon.findOne({ where: { couponCodeName } });
+
+  if (coupon) {
+    const now = new Date();
+
+    // check validity period
+    if (new Date(coupon.startDate) <= now && new Date(coupon.endDate) >= now) {
+      if (total_amount >= coupon.minimumPurchaseAmount) {
+        if (coupon.discountUnit === "percentage") {
+          discount = (total_amount * coupon.discountValue) / 100;
+        } else if (coupon.discountUnit === "flat") {
+          discount = coupon.discountValue;
+        }
+      }
+    }
+  }
+}
+
+const grand_total_amount = total_amount - discount;
 
     // 3. Save Bill (use billData instead of address)
     const bill = await Bill.create({
@@ -85,20 +106,34 @@ exports.checkout = async (req, res) => {
       const variant = item?.ProductVariant;
       const product = variant?.Product;
 
+      const productName = product?.productName || "Unknown";
+      const productImage = variant?.productVariantImage || product?.productImage || null;
+      const productPrice = product?.productOfferPrice || 0;
+
       await OrderSlot.create({
-        productOrderId: order.id,
-        userId,
-        product_variant_id: item.productVariantId,
-        productname: product?.productName || "Unknown",
-        product_variant_image:
-          variant?.productVariantImage || product?.productImage || null,
-        quantity: item.quantity,
-        total_price: (product?.productOfferPrice || 0) * item.quantity,
-      });
+       productOrderId: order.id,
+       userId,
+       product_variant_id: item.productVariantId,
+       productname: productName,                  
+       product_variant_image: productImage,       
+       product_price: productPrice,               
+       quantity: item.quantity,
+       total_price: productPrice * item.quantity, 
+  });
     }
 
     // 7. Clear cart
     await Cart.destroy({ where: { userId } });
+
+    // 9. Send Order Email
+    await sendOrderMail({
+      id: order.id,
+      orderId: order.orderId,
+      email: billData.email,
+      fullName: billData.fullName,
+      products: cartItems,
+      total: grand_total_amount,
+    });
 
     res.status(201).json({ success: true, order, bill });
   } catch (error) {
@@ -121,6 +156,8 @@ exports.getAllOrders = async (req, res) => {
       order: [["createdAt", "DESC"]],
     });
 
+    console.log("📝 Orders fetched:", JSON.stringify(orders, null, 2));
+
     res.status(200).json({ success: true, orders });
   } catch (error) {
     console.error("❌ GetAllOrders error:", error);
@@ -142,6 +179,8 @@ exports.getOrderById = async (req, res) => {
         { model: OrderSlot, as: "OrderSlots" },
       ],
     });
+
+    console.log("📝 Orders fetched:", JSON.stringify(order, null, 2));
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });

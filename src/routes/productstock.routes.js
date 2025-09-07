@@ -4,10 +4,10 @@ const stockController = require("../controllers/productStockController");
 
 module.exports = (ProductStock, ProductVariant) => {
   // Add stock
-  router.post("/add", stockController.addStock(ProductStock));
+  router.post("/add", stockController.addStock(ProductStock, ProductVariant));
 
   // Reduce stock
-  router.post("/reduce", stockController.reduceStock(ProductStock));
+  router.post("/reduce", stockController.reduceStock(ProductStock, ProductVariant));
 
    router.get("/", stockController.getAllStocks(ProductStock));
 

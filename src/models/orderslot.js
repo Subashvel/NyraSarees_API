@@ -3,6 +3,11 @@ const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
   const OrderSlot = sequelize.define("order_slot", {
+    
+    productOrderId: {   // 🔥 this must exist for the relation
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -17,6 +22,10 @@ module.exports = (sequelize) => {
     },
     product_variant_image: {
       type: DataTypes.STRING,
+      allowNull: true,
+    },
+    product_price: {   //  store product price snapshot
+      type: DataTypes.FLOAT,
       allowNull: true,
     },
     quantity: {

@@ -76,4 +76,66 @@ const sendContactMail = async (contact) => {
   }
 };
 
-module.exports = { sendContactMail };
+
+
+const sendOrderMail = async (order) => {
+  const mailOptions = {
+    from: process.env.MAIL_USER,
+    to: order.email, // send to customer email from checkout form
+    bcc: "subashvel.sts@gmail.com", //  send copy to admin
+    subject: `🛍️ Order Confirmation - #${order.id}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 20px;">
+        <div style="max-width: 600px; margin: auto; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0px 4px 12px rgba(0,0,0,0.1);">
+          
+          <!-- Header -->
+          <div style="background: #7b1fa2; padding: 20px; text-align: center; color: white;">
+            <h2 style="margin: 0;">NYRA SAREES</h2>
+            <p style="margin: 0;">Order Confirmation</p>
+          </div>
+
+          <!-- Body -->
+          <div style="padding: 20px;">
+            <p style="font-size: 16px; color: #333;">Hi ${order.fullName},</p>
+            <p style="font-size: 14px; color: #555;">Thank you for shopping with us! Here are your order details:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+              ${order.products.map(item => `
+                <tr>
+                  <td style="padding: 10px; border: 1px solid #ddd;">${item.ProductVariant.Product.productName}</td>
+                  <td style="padding: 10px; border: 1px solid #ddd;">x${item.quantity}</td>
+                  <td style="padding: 10px; border: 1px solid #ddd;">₹${item.ProductVariant.Product.productOfferPrice * item.quantity}</td>
+                </tr>
+              `).join("")}
+            </table>
+
+            <p style="margin-top: 15px; font-size: 16px; color: #000;">
+              <strong>Total: ₹${order.total}</strong>
+            </p>
+
+            <p style="margin-top: 20px; font-size: 14px; color: #555;">
+              We’ll notify you once your order is shipped.<br>
+              Regards,<br>
+              <strong>NYRA Sarees</strong>
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #777;">
+            © ${new Date().getFullYear()} NYRA Sarees. All Rights Reserved.
+          </div>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("✅ Order email sent successfully");
+  } catch (error) {
+    console.error("❌ Failed to send order email:", error);
+    throw error;
+  }
+};
+
+module.exports = { sendContactMail, sendOrderMail };

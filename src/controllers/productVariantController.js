@@ -8,7 +8,7 @@ const parseBool = (val) => {
   return !!val;
 };
 
-exports.createProductVariant = (ProductVariant) => async (req, res) => {
+exports.createProductVariant = (ProductVariant, ProductStock) => async (req, res) => {
   try {
     const { productId, productColor, stockQuantity, lowStock, subCategoryId, categoryId, isNewArrival, isBestSeller, isTrending } = req.body;
 
@@ -27,14 +27,24 @@ exports.createProductVariant = (ProductVariant) => async (req, res) => {
         : null,
     });
 
+    // ✅ Create ProductStock entry if initial stock exists
+    if (stockQuantity && Number(stockQuantity) > 0) {
+      await ProductStock.create({
+  productVariantId: variant.productVariantId, // ✅ use Sequelize property name
+  availableStock: Number(stockQuantity),
+  soldStock: 0,
+});
+    }
+
     res.status(201).json({ success: true, data: variant });
   } catch (error) {
+    console.error("Error in createProductVariant:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // GET All Variants
-exports.getProductVariants = (ProductVariant, Product, SubCategory, Category) => async (req, res) => {
+exports.getProductVariants = (ProductVariant, Product, SubCategory, Category, ProductStock) => async (req, res) => {
   try {
     const variants = await ProductVariant.findAll({
       include: [
@@ -48,6 +58,11 @@ exports.getProductVariants = (ProductVariant, Product, SubCategory, Category) =>
               include: [{ model: Category, as: "Category" }]
             }
           ]
+        },
+        {
+          model: ProductStock,
+          as: "Stock",       // <-- make sure you defined association
+          attributes: ["availableStock"]
         }
       ],
       order: [["variantId", "ASC"]],
@@ -60,7 +75,7 @@ exports.getProductVariants = (ProductVariant, Product, SubCategory, Category) =>
 };
 
 // GET Variant by ID
-exports.getProductVariantById = (ProductVariant, Product, SubCategory, Category) => async (req, res) => {
+exports.getProductVariantById = (ProductVariant, Product, SubCategory, Category, ProductStock) => async (req, res) => {
   try {
     const variant = await ProductVariant.findByPk(req.params.id, {
       include: [
@@ -74,8 +89,15 @@ exports.getProductVariantById = (ProductVariant, Product, SubCategory, Category)
               include: [{ model: Category, as: "Category" }]
             }
           ]
+       },
+        {
+          model: ProductStock,
+          as: "Stock",       // <-- make sure you defined association
+          attributes: ["availableStock"]
         }
-      ]
+
+      ],
+      order: [["variantId", "ASC"]],
     });
 
     if (!variant) return res.status(404).json({ success: false, message: "Variant not found" });
@@ -87,7 +109,7 @@ exports.getProductVariantById = (ProductVariant, Product, SubCategory, Category)
 };
 
 // UPDATE Variant
-exports.updateProductVariant = (ProductVariant) => async (req, res) => {
+exports.updateProductVariant = (ProductVariant, ProductStock) => async (req, res) => {
   try {
     const { productId, productColor, stockQuantity, lowStock, subCategoryId, categoryId, isNewArrival, isBestSeller, isTrending } = req.body;
 
@@ -99,7 +121,8 @@ exports.updateProductVariant = (ProductVariant) => async (req, res) => {
     let updateData = {
       productId: productId || variant.productId,
       productColor: productColor || variant.productColor,
-      stockQuantity: stockQuantity || variant.stockQuantity,
+     stockQuantity:
+        stockQuantity !== undefined ? stockQuantity : variant.stockQuantity,
       lowStock: lowStock || variant.lowStock,
       subCategoryId: subCategoryId || variant.subCategoryId,
       categoryId: categoryId || variant.categoryId,
@@ -116,6 +139,23 @@ exports.updateProductVariant = (ProductVariant) => async (req, res) => {
     }
 
     await variant.update(updateData);
+
+     // Sync ProductStock if stockQuantity is changed
+    if (stockQuantity !== undefined) {
+      const stock = await ProductStock.findOne({
+        where: { productVariantId: variant.productVariantId },
+      });
+
+      if (stock) {
+        await stock.update({ availableStock: Number(stockQuantity) });
+      } else {
+        await ProductStock.create({
+          productVariantId: variant.variantId,
+          availableStock: Number(stockQuantity),
+          soldStock: 0,
+        });
+      }
+    }
 
     res.status(200).json({ success: true, data: variant });
   } catch (error) {

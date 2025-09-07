@@ -9,6 +9,14 @@ module.exports = (User) => {
   router.post("/register", userController.register);
   router.post("/login", userController.login);
 
+    // 🔹 Forgot Password
+  router.post("/forgot-password", userController.forgotPassword);
+
+  router.post("/verify-otp", userController.verifyOtp);
+
+  // 🔹 Reset Password
+  router.post("/reset-password", userController.resetPassword);
+
   // 🔹 Get all users (without passwords)
   router.get("/", async (req, res) => {
     try {

@@ -50,7 +50,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
     app.use('/api/categories', createCategoryRoutes(Category));
     app.use("/api/subcategories", createSubCategoryRoutes(SubCategory, Category));
     app.use("/api/products", require("./routes/product.routes")(Product, SubCategory, Category, ProductVariant, ProductVariantChildImage, imageBaseUrl));
-    app.use("/api/product-variants", createProductVariantRoutes(ProductVariant, Product, SubCategory, Category, imageBaseUrl));
+    app.use("/api/product-variants", createProductVariantRoutes(ProductVariant, ProductStock, Product, SubCategory, Category, imageBaseUrl));
     app.use("/api/home-banners", createHomeBannerRoutes(HomeBanner, imageBaseUrl));
     app.use("/api/wishlist", createWishlistRoutes(Wishlist, ProductVariant, Product));
     app.use("/api/cart", createCartRoutes(Cart, ProductVariant, Product));
