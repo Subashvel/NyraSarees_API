@@ -31,5 +31,10 @@ module.exports = (ProductVariant, ProductStock, Product, SubCategory, Category, 
   // DELETE
   router.delete("/:id", productVariantController.deleteProductVariant(ProductVariant));
 
+  router.get(
+  "/",
+  productVariantController.getLowStockProducts(ProductVariant, ProductStock, Product)
+);
+
   return router;
 };

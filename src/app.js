@@ -64,6 +64,9 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
     app.use("/api/contacts", createContactRoutes(models.Contact));
     app.use("/api/newsletter", require("./routes/newsletter.routes")(models.Newsletter));
     app.use("/api/orders", createOrderRoutes);
+    app.use("/api/low-stock", require("./routes/productvariant.routes")(
+  ProductVariant, ProductStock, Product, SubCategory, Category, imageBaseUrl
+));
     
   
 

@@ -16,6 +16,7 @@ const ContactModel = require("./contact");
 const NewsletterModel = require("./newsletter");
 const OrderSlotModel = require("./orderslot");
 const ProductOrderModel = require("./productorder");
+// const OrderHistoryModel = require("./orderHistory");
 
 
 
@@ -41,6 +42,7 @@ async function initModels() {
   const Newsletter = NewsletterModel(sequelize);
   const OrderSlot = OrderSlotModel(sequelize);
   const ProductOrder = ProductOrderModel(sequelize);
+  // const OrderHistory = OrderHistoryModel(sequelize);
 
   // const Variant = VariantModel(sequelize);
 
@@ -119,7 +121,8 @@ async function initModels() {
 
   await sequelize.sync({ alter: true }); // auto create/update tables
 
-  return { sequelize, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, ProductStock, User, HomeBanner, Wishlist, Cart, Coupon, Bill, CollectionBanner, Contact, Newsletter, OrderSlot, ProductOrder };
+  return { sequelize, Category, SubCategory, Product, ProductVariant, ProductVariantChildImage, ProductStock, User, HomeBanner, Wishlist, Cart, Coupon, Bill, CollectionBanner, Contact, Newsletter, OrderSlot, ProductOrder,  };
+  // OrderHistory
 }
 
 module.exports = initModels;

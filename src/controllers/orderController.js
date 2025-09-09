@@ -120,7 +120,84 @@ const grand_total_amount = total_amount - discount;
        quantity: item.quantity,
        total_price: productPrice * item.quantity, 
   });
-    }
+          //  Update ProductStock
+        const { ProductStock } = await initModels();
+      
+        const stock = await ProductStock.findOne({
+          where: { productVariantId: item.productVariantId },
+        });
+      
+        if (stock) {
+          stock.availableStock = Math.max(0, stock.availableStock - item.quantity);
+          stock.soldStock += item.quantity;
+          await stock.save();
+        } else {
+          // if stock row missing, create it
+          await ProductStock.create({
+            productVariantId: item.productVariantId,
+            availableStock: Math.max(0, -item.quantity),
+            soldStock: item.quantity,
+          });
+        }
+      
+        // Sync ProductVariant stockQuantity too
+        if (variant) {
+          variant.stockQuantity = Math.max(0, (variant.stockQuantity || 0) - item.quantity);
+          await variant.save();
+        }
+      }
+
+
+
+      // 🔥 New Step: Create the order snapshot in OrderHistory
+// const { OrderHistory } = await initModels();
+
+// const billInfoSnapshot = {
+//   fullName: billData.fullName,
+//   email: billData.email,
+//   phoneNo: billData.phoneNo,
+//   townCity: billData.townCity,
+//   zipCode: billData.zipCode,
+//   addressLine1: billData.addressLine1,
+//   addressLine2: billData.addressLine2,
+//   additionalText: billData.additionalText,
+// };
+
+// const productsSnapshot = cartItems.map((item) => ({
+//   productName: item?.ProductVariant?.Product?.productName || "Unknown",
+//   productVariantImage: item?.ProductVariant?.productVariantImage || item?.ProductVariant?.Product?.productImage || null,
+//   productPrice: item?.ProductVariant?.Product?.productOfferPrice || 0,
+//   productColor: item?.ProductVariant?.productColor || "N/A",
+//   productVariantId: item.productVariantId,
+//   quantity: item.quantity,
+//   totalPrice: (item?.ProductVariant?.Product?.productOfferPrice || 0) * item.quantity,
+// }));
+
+// await OrderHistory.create({
+//   orderId: order.orderId,
+//   userId,
+//   fullName: billData.fullName,
+//   email: billData.email,
+//   phoneNo: billData.phoneNo,
+//   townCity: billData.townCity,
+//   zipCode: billData.zipCode,
+//   addressLine1: billData.addressLine1,
+//   addressLine2: billData.addressLine2,
+//   additionalText: billData.additionalText,
+//   product_variant_id: cartItems[0].productVariantId,
+//   productname: productsSnapshot[0].productName,
+//   product_variant_image: productsSnapshot[0].productVariantImage,
+//   productColor: productsSnapshot[0].productColor,
+//   quantity: productsSnapshot[0].quantity,
+//   total_price: productsSnapshot[0].totalPrice,
+//   totalAmount: total_amount,
+//   grandTotalAmount: grand_total_amount,
+//   couponCodeName,
+//   deliveryStatus: "pending",
+//   paymentStatus: "unpaid",
+//   orderDate: new Date(),
+// });
+
 
     // 7. Clear cart
     await Cart.destroy({ where: { userId } });
@@ -246,3 +323,24 @@ exports.getOrdersByUserId = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// exports.getOrderHistoryByUserId = async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+//     const { OrderHistory } = await initModels();
+
+//     const history = await OrderHistory.findAll({
+//       where: { userId },
+//       order: [["createdAt", "DESC"]],
+//     });
+
+//     if (!history.length) {
+//       return res.status(404).json({ success: false, message: "No order history found" });
+//     }
+
+//     res.status(200).json({ success: true, history });
+//   } catch (error) {
+//     console.error("❌ GetOrderHistoryByUserId error:", error);
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };

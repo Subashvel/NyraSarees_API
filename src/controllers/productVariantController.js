@@ -178,3 +178,24 @@ exports.deleteProductVariant = (ProductVariant) => async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+exports.getLowStockProducts = (ProductVariant, ProductStock, Product) => async (req, res) => {
+  try {
+    const items = await ProductVariant.findAll({
+      include: [
+        { model: Product, as: "Product" },
+        { model: ProductStock, as: "Stock" },
+      ],
+      where: Sequelize.where(
+        Sequelize.col("Stock.availableStock"),
+        "<=",
+        Sequelize.col("productvariant.lowStock")
+      ),
+    });
+
+    res.status(200).json({ success: true, data: items });
+  } catch (error) {
+    console.error("Error fetching low stock products:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

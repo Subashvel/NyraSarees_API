@@ -9,4 +9,6 @@ router.get("/:id", orderController.getOrderById);  // single order by ID
 router.put("/:id/status", orderController.updateOrderStatus);
 router.get("/user/:userId", orderController.getOrdersByUserId);
 
+// router.get("/order-history/:userId", orderController.getOrderHistoryByUserId);
+
 module.exports = router;
