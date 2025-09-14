@@ -4,7 +4,7 @@ const { DataTypes } = require("sequelize");
 module.exports = (sequelize) => {
   const OrderSlot = sequelize.define("order_slot", {
     
-    productOrderId: {   // 🔥 this must exist for the relation
+    productOrderId: {   // this must exist for the relation
       type: DataTypes.INTEGER,
       allowNull: true,
     },

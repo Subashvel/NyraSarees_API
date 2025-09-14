@@ -79,22 +79,22 @@ const sendContactMail = async (contact) => {
 
 
 const sendOrderMail = async (order) => {
+  const currencySymbol = order.currency === 'USD' ? '$' : '₹'; 
+
   const mailOptions = {
     from: process.env.MAIL_USER,
-    to: order.email, // send to customer email from checkout form
-    bcc: "subashvel.sts@gmail.com", //  send copy to admin
+    to: order.email,
+    bcc: "subashvel.sts@gmail.com",
     subject: `🛍️ Order Confirmation - #${order.id}`,
     html: `
       <div style="font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 20px;">
         <div style="max-width: 600px; margin: auto; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0px 4px 12px rgba(0,0,0,0.1);">
           
-          <!-- Header -->
           <div style="background: #7b1fa2; padding: 20px; text-align: center; color: white;">
             <h2 style="margin: 0;">NYRA SAREES</h2>
             <p style="margin: 0;">Order Confirmation</p>
           </div>
 
-          <!-- Body -->
           <div style="padding: 20px;">
             <p style="font-size: 16px; color: #333;">Hi ${order.fullName},</p>
             <p style="font-size: 14px; color: #555;">Thank you for shopping with us! Here are your order details:</p>
@@ -104,13 +104,15 @@ const sendOrderMail = async (order) => {
                 <tr>
                   <td style="padding: 10px; border: 1px solid #ddd;">${item.ProductVariant.Product.productName}</td>
                   <td style="padding: 10px; border: 1px solid #ddd;">x${item.quantity}</td>
-                  <td style="padding: 10px; border: 1px solid #ddd;">₹${item.ProductVariant.Product.productOfferPrice * item.quantity}</td>
+                  <td style="padding: 10px; border: 1px solid #ddd;">
+                    ${currencySymbol}${(item.ProductVariant.Product.productOfferPrice * item.quantity).toFixed(2)}
+                  </td>
                 </tr>
               `).join("")}
             </table>
 
             <p style="margin-top: 15px; font-size: 16px; color: #000;">
-              <strong>Total: ₹${order.total}</strong>
+              <strong>Total: ${currencySymbol}${order.total.toFixed(2)}</strong>
             </p>
 
             <p style="margin-top: 20px; font-size: 14px; color: #555;">
@@ -120,7 +122,6 @@ const sendOrderMail = async (order) => {
             </p>
           </div>
 
-          <!-- Footer -->
           <div style="background: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #777;">
             © ${new Date().getFullYear()} NYRA Sarees. All Rights Reserved.
           </div>

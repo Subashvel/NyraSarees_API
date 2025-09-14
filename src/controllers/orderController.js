@@ -2,7 +2,7 @@
 const initModels = require("../models");
 const { sendOrderMail } = require("../utils/mailer");
 exports.checkout = async (req, res) => {
-  const { billData, couponCodeName } = req.body;
+  const { billData, couponCodeName,  currency} = req.body;
   const userId = billData.userId; // 🔥 extract userId from billData
 
   try {
@@ -99,6 +99,7 @@ const grand_total_amount = total_amount - discount;
       couponCodeName,
       total_amount,
       grand_total_amount,
+      currencyType: billData.currency,
     });
 
     // 6. Create OrderSlots
@@ -149,55 +150,59 @@ const grand_total_amount = total_amount - discount;
 
 
 
-      // 🔥 New Step: Create the order snapshot in OrderHistory
-// const { OrderHistory } = await initModels();
-
-// const billInfoSnapshot = {
-//   fullName: billData.fullName,
-//   email: billData.email,
-//   phoneNo: billData.phoneNo,
-//   townCity: billData.townCity,
-//   zipCode: billData.zipCode,
-//   addressLine1: billData.addressLine1,
-//   addressLine2: billData.addressLine2,
-//   additionalText: billData.additionalText,
-// };
-
-// const productsSnapshot = cartItems.map((item) => ({
-//   productName: item?.ProductVariant?.Product?.productName || "Unknown",
-//   productVariantImage: item?.ProductVariant?.productVariantImage || item?.ProductVariant?.Product?.productImage || null,
-//   productPrice: item?.ProductVariant?.Product?.productOfferPrice || 0,
-//   productColor: item?.ProductVariant?.productColor || "N/A",
-//   productVariantId: item.productVariantId,
-//   quantity: item.quantity,
-//   totalPrice: (item?.ProductVariant?.Product?.productOfferPrice || 0) * item.quantity,
-// }));
-
-// await OrderHistory.create({
-//   orderId: order.orderId,
-//   userId,
-//   fullName: billData.fullName,
-//   email: billData.email,
-//   phoneNo: billData.phoneNo,
-//   townCity: billData.townCity,
-//   zipCode: billData.zipCode,
-//   addressLine1: billData.addressLine1,
-//   addressLine2: billData.addressLine2,
-//   additionalText: billData.additionalText,
-//   product_variant_id: cartItems[0].productVariantId,
-//   productname: productsSnapshot[0].productName,
-//   product_variant_image: productsSnapshot[0].productVariantImage,
-//   productColor: productsSnapshot[0].productColor,
-//   quantity: productsSnapshot[0].quantity,
-//   total_price: productsSnapshot[0].totalPrice,
-//   totalAmount: total_amount,
-//   grandTotalAmount: grand_total_amount,
-//   couponCodeName,
-//   deliveryStatus: "pending",
-//   paymentStatus: "unpaid",
-//   orderDate: new Date(),
-// });
-
+      // New Step: Create the order snapshot in OrderHistory
+        const { OrderHistory } = await initModels();
+        
+        const billInfoSnapshot = {
+          fullName: billData.fullName,
+          email: billData.email,
+          phoneNo: billData.phoneNo,
+          townCity: billData.townCity,
+          zipCode: billData.zipCode,
+          addressLine1: billData.addressLine1,
+          addressLine2: billData.addressLine2,
+          additionalText: billData.additionalText,
+        };
+        
+        const productsSnapshot = cartItems.map((item) => ({
+         productName: item?.ProductVariant?.Product?.productName || "Unknown",
+         productVariantImage: item?.ProductVariant?.productVariantImage || item?.ProductVariant?.Product?.productImage || null,
+         productPrice: item?.ProductVariant?.Product?.productOfferPrice || 0,
+         productColor: item?.ProductVariant?.productColor || "N/A",
+         productVariantId: item.productVariantId,
+         quantity: item.quantity,
+         totalPrice: (item?.ProductVariant?.Product?.productOfferPrice || 0) * item.quantity,
+       }));
+        
+        
+      for (let product of productsSnapshot) {
+        await OrderHistory.create({
+          orderId: order.orderId,
+          userId,
+          fullName: billData.fullName,
+          email: billData.email,
+          phoneNo: billData.phoneNo,
+          townCity: billData.townCity,
+          zipCode: billData.zipCode,
+          addressLine1: billData.addressLine1,
+          addressLine2: billData.addressLine2,
+          additionalText: billData.additionalText,
+          product_variant_id: product.productVariantId,
+          productname: product.productName,
+          product_variant_image: product.productVariantImage,
+          productColor: product.productColor,
+          quantity: product.quantity,
+          total_price: product.totalPrice,
+          totalAmount: total_amount,
+          grandTotalAmount: grand_total_amount,
+          couponCodeName,
+          deliveryStatus: "pending",
+          paymentStatus: "unpaid",
+          orderDate: new Date(),
+          currency,currency: billData.currency
+        });
+      }
+        
 
     // 7. Clear cart
     await Cart.destroy({ where: { userId } });
@@ -210,6 +215,7 @@ const grand_total_amount = total_amount - discount;
       fullName: billData.fullName,
       products: cartItems,
       total: grand_total_amount,
+      currency: billData.currency,
     });
 
     res.status(201).json({ success: true, order, bill });
@@ -324,23 +330,44 @@ exports.getOrdersByUserId = async (req, res) => {
   }
 };
 
-// exports.getOrderHistoryByUserId = async (req, res) => {
-//   try {
-//     const { userId } = req.params;
-//     const { OrderHistory } = await initModels();
+exports.getOrderHistoryByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { OrderHistory } = await initModels();
 
-//     const history = await OrderHistory.findAll({
-//       where: { userId },
-//       order: [["createdAt", "DESC"]],
-//     });
+    const history = await OrderHistory.findAll({
+      where: { userId },
+      order: [["createdAt", "DESC"]],
+    });
 
-//     if (!history.length) {
-//       return res.status(404).json({ success: false, message: "No order history found" });
-//     }
+    if (!history.length) {
+      return res.status(404).json({ success: false, message: "No order history found" });
+    }
 
-//     res.status(200).json({ success: true, history });
-//   } catch (error) {
-//     console.error("❌ GetOrderHistoryByUserId error:", error);
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// };
+    res.status(200).json({ success: true, history });
+  } catch (error) {
+    console.error("❌ GetOrderHistoryByUserId error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getOrderHistoryByOrderId = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { OrderHistory } = await initModels();
+
+    const history = await OrderHistory.findAll({
+      where: { orderId },
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (!history.length) {
+      return res.status(404).json({ success: false, message: "No order history found for this orderId" });
+    }
+
+    res.status(200).json({ success: true, history });
+  } catch (error) {
+    console.error("❌ GetOrderHistoryByOrderId error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

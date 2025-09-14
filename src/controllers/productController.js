@@ -11,7 +11,8 @@ exports.createProduct = (Product, imageBaseUrl) => async (req, res) => {
       productMrpPrice,
       productOfferPrice, 
       subCategoryId,
-      categoryId
+      categoryId,
+      
     } = req.body;
 
     const productImage = req.file ? req.file.filename : null;

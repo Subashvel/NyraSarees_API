@@ -12,7 +12,7 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    billId: {   //  add this
+    billId: { //  add this
       type: DataTypes.INTEGER,
       allowNull: true,
     },
@@ -33,6 +33,7 @@ module.exports = (sequelize) => {
       allowNull: true,
       defaultValue: "pending",
     },
+   
     paymentStatus: {
       type: DataTypes.ENUM("unpaid", "paid"),
       allowNull: true,
@@ -43,7 +44,12 @@ module.exports = (sequelize) => {
       allowNull: true,
       defaultValue: DataTypes.NOW, // auto set current date+time
     },
+    currency: {
+    type: DataTypes.STRING,  // or ENUM('INR', 'USD') if stricter
+    allowNull: true,
+}
   });
 
   return ProductOrder;
 };
+
