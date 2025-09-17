@@ -88,6 +88,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    discount_price: {
+       type: DataTypes.FLOAT,
+       allowNull: true,
+     },
     deliveryStatus: {
       type: DataTypes.ENUM(
         "pending",

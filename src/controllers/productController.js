@@ -1,6 +1,8 @@
 // controllers/productController.js
 
 // CREATE Product
+
+const { Op } = require("sequelize");
 exports.createProduct = (Product, imageBaseUrl) => async (req, res) => {
   try {
     const { 
@@ -134,6 +136,48 @@ exports.deleteProduct = (Product) => async (req, res) => {
     await product.destroy();
     res.status(200).json({ success: true, message: "Product deleted successfully" });
   } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+exports.getRelatedProducts = (Product, SubCategory, Category, ProductVariant, ProductVariantChildImage) => async (req, res) => {
+  try {
+    const { id } = req.params; // current productId
+
+    // First get the current product
+    const currentProduct = await Product.findByPk(id, {
+      include: [{ model: SubCategory, as: "SubCategory" }]
+    });
+
+    if (!currentProduct) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    // Find related products by same categoryId
+    const relatedProducts = await Product.findAll({
+      where: {
+        categoryId: currentProduct.categoryId,
+        productId: { [Op.ne]: id } // exclude current product
+      },
+      include: [
+        { 
+          model: SubCategory, 
+          as: "SubCategory",
+          include: [{ model: Category, as: "Category" }]
+        },
+        { 
+          model: ProductVariant, 
+          as: "Variants",
+          include: [{ model: ProductVariantChildImage, as: "ChildImages" }]
+        }
+      ],
+      limit: 10, // ✅ show max 10 related products
+    });
+
+    res.status(200).json({ success: true, data: relatedProducts });
+  } catch (error) {
+    console.error("Error fetching related products:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

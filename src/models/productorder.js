@@ -20,6 +20,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    couponDiscountAmount: {   // Add this new column
+    type: DataTypes.FLOAT,
+    allowNull: true,
+  },
     total_amount: {
       type: DataTypes.FLOAT,
       allowNull: false,

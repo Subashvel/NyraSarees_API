@@ -24,6 +24,13 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    productColor: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      validate: {
+        is: /^#([0-9A-Fa-f]{6})$/, // strict hex code validation
+      }
+    },
     product_price: {   //  store product price snapshot
       type: DataTypes.FLOAT,
       allowNull: true,
@@ -36,6 +43,10 @@ module.exports = (sequelize) => {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
+    currency: {       // NEW COLUMN to store 'INR' or 'USD'
+      type: DataTypes.STRING,
+      allowNull: true,
+    }
   });
 
   return OrderSlot;

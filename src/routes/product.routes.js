@@ -20,6 +20,11 @@ module.exports = (Product, SubCategory, Category, ProductVariant, ProductVariant
     productController.updateProduct(Product, imageBaseUrl)
   );
 
+
+  router.get("/:id/related", 
+  productController.getRelatedProducts(Product, SubCategory, Category, ProductVariant, ProductVariantChildImage)
+);
+
   // DELETE
   router.delete("/:id", productController.deleteProduct(Product));
 

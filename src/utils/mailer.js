@@ -79,41 +79,61 @@ const sendContactMail = async (contact) => {
 
 
 const sendOrderMail = async (order) => {
-  const currencySymbol = order.currency === 'USD' ? '$' : '₹'; 
+  const currencySymbol = order.currency?.toUpperCase() === 'USD' ? '$' : '₹'; 
 
   const mailOptions = {
     from: process.env.MAIL_USER,
     to: order.email,
     bcc: "subashvel.sts@gmail.com",
-    subject: `🛍️ Order Confirmation - #${order.id}`,
+    subject: `🛍️ NYRA Sarees: Thank you ${order.fullName} – Your Order is Confirmed!`,
     html: `
       <div style="font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 20px;">
         <div style="max-width: 600px; margin: auto; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0px 4px 12px rgba(0,0,0,0.1);">
           
-          <div style="background: #7b1fa2; padding: 20px; text-align: center; color: white;">
+          <div style="background: #7484ec; padding: 20px; text-align: center; color: white;">
             <h2 style="margin: 0;">NYRA SAREES</h2>
             <p style="margin: 0;">Order Confirmation</p>
           </div>
 
           <div style="padding: 20px;">
-            <p style="font-size: 16px; color: #333;">Hi ${order.fullName},</p>
+            <p style="font-size: 16px; color: #333;">Hi ${order.fullName || "Valued Customer"},</p>
             <p style="font-size: 14px; color: #555;">Thank you for shopping with us! Here are your order details:</p>
+            <p style="font-size: 16px; color: #333;">
+              Your order ID is: <strong>${order.orderId}</strong>
+            </p>
 
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+              <tr style="font-weight: bold;">
+                <td style="padding: 10px; border: 1px solid #ddd;">Product</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">Color</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">Unit Price</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">Quantity</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">Total Price</td>
+              </tr>
               ${order.products.map(item => `
-                <tr>
-                  <td style="padding: 10px; border: 1px solid #ddd;">${item.ProductVariant.Product.productName}</td>
-                  <td style="padding: 10px; border: 1px solid #ddd;">x${item.quantity}</td>
-                  <td style="padding: 10px; border: 1px solid #ddd;">
-                    ${currencySymbol}${(item.ProductVariant.Product.productOfferPrice * item.quantity).toFixed(2)}
-                  </td>
-                </tr>
+               <tr>
+                 <td style="padding: 10px; border: 1px solid #ddd;">${item.productName}</td>
+                 <td style="padding: 10px; border: 1px solid #ddd;">
+                 <div style="
+                     width: 20px;
+                     height: 20px;
+                     background-color: ${item.productColor};
+                     border: 1px solid #ddd;
+                     border-radius: 4px;
+                     display: inline-block;
+                   "></div>
+                 </td>
+                 <td style="padding: 10px; border: 1px solid #ddd;">${currencySymbol}${item.productPrice.toFixed(2)}</td>
+                 <td style="padding: 10px; border: 1px solid #ddd;">${item.quantity}</td>
+                 <td style="padding: 10px; border: 1px solid #ddd;">${currencySymbol}${(item.productPrice * item.quantity).toFixed(2)}</td>
+               </tr>
               `).join("")}
             </table>
 
-            <p style="margin-top: 15px; font-size: 16px; color: #000;">
-              <strong>Total: ${currencySymbol}${order.total.toFixed(2)}</strong>
-            </p>
+           <div style="margin-top: 15px; text-align: right;">
+              <p style="font-size: 16px; margin: 5px 0;"><strong>Discount: - ${currencySymbol}${order.discount.toFixed(2)}</strong></p>
+              <p style="font-size: 18px; margin: 5px 0;"><strong>Total: ${currencySymbol}${order.total.toFixed(2)}</strong></p>
+            </div>
 
             <p style="margin-top: 20px; font-size: 14px; color: #555;">
               We’ll notify you once your order is shipped.<br>

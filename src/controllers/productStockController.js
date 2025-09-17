@@ -36,14 +36,12 @@ exports.reduceStock = (ProductStock, ProductVariant) => async (req, res) => {
     }
 
     stock.availableStock -= parseInt(quantity);
-    stock.soldStock += parseInt(quantity);
     await stock.save();
 
-    //  Sync with ProductVariant.stockQuantity
     const variant = await ProductVariant.findByPk(productVariantId);
     if (variant) {
       variant.stockQuantity -= parseInt(quantity);
-      if (variant.stockQuantity < 0) variant.stockQuantity = 0; // prevent negative
+      if (variant.stockQuantity < 0) variant.stockQuantity = 0;
       await variant.save();
     }
 
@@ -76,3 +74,29 @@ exports.getAllStocks = (ProductStock) => async (req, res) => {
 };
 
 
+exports.recordSale = (ProductStock, ProductVariant) => async (req, res) => {
+  try {
+    const { productVariantId, quantity } = req.body;
+
+    const stock = await ProductStock.findOne({ where: { productVariantId } });
+    if (!stock || stock.availableStock < quantity) {
+      return res.status(400).json({ message: "Insufficient stock" });
+    }
+
+    stock.availableStock -= parseInt(quantity);
+    stock.soldStock += parseInt(quantity);
+    await stock.save();
+
+    // Sync with ProductVariant.stockQuantity
+    const variant = await ProductVariant.findByPk(productVariantId);
+    if (variant) {
+      variant.stockQuantity -= parseInt(quantity);
+      if (variant.stockQuantity < 0) variant.stockQuantity = 0;
+      await variant.save();
+    }
+
+    res.json({ message: "Sale recorded successfully", stock, variant });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

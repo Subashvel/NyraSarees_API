@@ -41,6 +41,17 @@ exports.checkout = async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
+    const convertCurrency = (amountInINR, currency) => {
+      const usdToInrRate = 83.5;  // Example rate: 1 USD = 83.5 INR (use real API if needed)
+    
+      if (currency === "USD") {
+        return parseFloat((amountInINR / usdToInrRate).toFixed(2));  // Round to 2 decimal places
+      }
+    
+      // Default: currency is INR → return amount as-is
+      return amountInINR;
+    };
+
     // 2. Calculate totals safely
     let total_amount = 0;
     cartItems.forEach((item) => {
@@ -74,6 +85,10 @@ if (couponCodeName) {
 
 const grand_total_amount = total_amount - discount;
 
+const convertedTotalAmount = convertCurrency(total_amount, currency);
+const convertedGrandTotalAmount = convertCurrency(grand_total_amount, currency);
+const convertedCouponDiscount = convertCurrency(discount, currency);
+
     // 3. Save Bill (use billData instead of address)
     const bill = await Bill.create({
       userId,
@@ -97,9 +112,10 @@ const grand_total_amount = total_amount - discount;
       userId,
       billId: bill.id,
       couponCodeName,
-      total_amount,
-      grand_total_amount,
-      currencyType: billData.currency,
+      couponDiscountAmount: convertedCouponDiscount,
+      total_amount: convertedTotalAmount,     
+      grand_total_amount: convertedGrandTotalAmount,  
+      currency: currency,           
     });
 
     // 6. Create OrderSlots
@@ -116,10 +132,12 @@ const grand_total_amount = total_amount - discount;
        userId,
        product_variant_id: item.productVariantId,
        productname: productName,                  
-       product_variant_image: productImage,       
-       product_price: productPrice,               
+       product_variant_image: productImage, 
+       productColor: variant?.productColor || "N/A",      
+       product_price: convertCurrency(productPrice, currency),               
        quantity: item.quantity,
-       total_price: productPrice * item.quantity, 
+       total_price: convertCurrency(productPrice * item.quantity, currency), 
+       currency: currency,   // Pass 'INR' or 'USD'
   });
           //  Update ProductStock
         const { ProductStock } = await initModels();
@@ -192,14 +210,16 @@ const grand_total_amount = total_amount - discount;
           product_variant_image: product.productVariantImage,
           productColor: product.productColor,
           quantity: product.quantity,
-          total_price: product.totalPrice,
-          totalAmount: total_amount,
-          grandTotalAmount: grand_total_amount,
+          product_price: convertCurrency(product.productPrice, currency),
+          discount_price: convertCurrency(discount, currency),  
+          total_price: convertCurrency(product.totalPrice, currency),
+          totalAmount: convertedTotalAmount,
+          grandTotalAmount: convertedGrandTotalAmount,
           couponCodeName,
           deliveryStatus: "pending",
           paymentStatus: "unpaid",
           orderDate: new Date(),
-          currency,currency: billData.currency
+          currency: currency,
         });
       }
         
@@ -211,11 +231,17 @@ const grand_total_amount = total_amount - discount;
     await sendOrderMail({
       id: order.id,
       orderId: order.orderId,
-      email: billData.email,
       fullName: billData.fullName,
-      products: cartItems,
-      total: grand_total_amount,
-      currency: billData.currency,
+      email: billData.email,
+      products: cartItems.map(item => ({
+        productName: item.ProductVariant.Product.productName,
+        productColor: item.ProductVariant.productColor || "N/A",
+        quantity: item.quantity,
+        productPrice: convertCurrency(item.ProductVariant.Product.productOfferPrice, currency),
+      })),
+      total: convertedGrandTotalAmount,
+      discount: convertedCouponDiscount,
+     currency: (currency || 'INR').toUpperCase(),
     });
 
     res.status(201).json({ success: true, order, bill });
